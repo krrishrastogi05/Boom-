@@ -42,6 +42,9 @@ private:
     HHOOK m_hook = NULL;
     bool m_isReceiver = false;
     uint64_t m_lastTriggerTime = 0;
+    bool m_oDown = false;
+    bool m_cDown = false;
+    bool m_xDown = false;
 
     static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 };

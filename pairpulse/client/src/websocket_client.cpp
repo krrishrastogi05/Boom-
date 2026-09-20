@@ -48,7 +48,9 @@ static bool ParseBoolKey(const std::string& json, const std::string& key) {
     std::string needle = "\"" + key + "\":";
     size_t pos = json.find(needle);
     if (pos == std::string::npos) return false;
-    return json.find("true", pos) < json.find("false", pos);
+    size_t start = pos + needle.length();
+    while (start < json.size() && (json[start] == ' ' || json[start] == '\t')) start++;
+    return (json.compare(start, 4, "true") == 0);
 }
 
 WebSocketClient::WebSocketClient() {

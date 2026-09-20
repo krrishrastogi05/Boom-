@@ -48,9 +48,17 @@ bool OverlayWindow::Initialize(HINSTANCE hInstance) {
         return false;
     }
 
-    // Query primary monitor resolution (or virtual screen bounds)
-    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    // Query virtual screen bounds to support multi-monitor setups
+    int screenX = GetSystemMetrics(SM_XVIRTUALSCREEN);
+    int screenY = GetSystemMetrics(SM_YVIRTUALSCREEN);
+    int screenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    int screenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+    if (screenWidth == 0 || screenHeight == 0) {
+        screenX = 0;
+        screenY = 0;
+        screenWidth = GetSystemMetrics(SM_CXSCREEN);
+        screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    }
 
     // Pre-create fullscreen borderless topmost window
     m_hwnd = CreateWindowExW(
@@ -58,7 +66,7 @@ bool OverlayWindow::Initialize(HINSTANCE hInstance) {
         OVERLAY_CLASS_NAME,
         L"PairPulse Overlay",
         WS_POPUP,
-        0, 0, screenWidth, screenHeight,
+        screenX, screenY, screenWidth, screenHeight,
         NULL, NULL, hInstance, this
     );
 

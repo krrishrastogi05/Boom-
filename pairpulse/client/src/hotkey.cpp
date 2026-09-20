@@ -1,5 +1,6 @@
 #include "hotkey.h"
 #include "state.h"
+#include "overlay.h"
 #include <iostream>
 
 #ifndef MOD_NOREPEAT
@@ -51,24 +52,32 @@ void HotkeyManager::UninstallKeyboardHook() {
 
 LRESULT CALLBACK HotkeyManager::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     if (nCode == HC_ACTION && s_instance) {
-        if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
-            KBDLLHOOKSTRUCT* kbd = reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam);
+        KBDLLHOOKSTRUCT* kbd = reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam);
+        DWORD vk = kbd->vkCode;
+
+        if (wParam == WM_KEYUP || wParam == WM_SYSKEYUP) {
+            if (vk == 'O' || vk == 'o') s_instance->m_oDown = false;
+            else if (vk == 'C' || vk == 'c') s_instance->m_cDown = false;
+            else if (vk == 'X' || vk == 'x') s_instance->m_xDown = false;
+            else if (vk == VK_MENU || vk == VK_LMENU || vk == VK_RMENU ||
+                     vk == VK_SHIFT || vk == VK_LSHIFT || vk == VK_RSHIFT) {
+                s_instance->m_oDown = false;
+                s_instance->m_cDown = false;
+                s_instance->m_xDown = false;
+            }
+        } else if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
             uint64_t now = StateManager::GetEpochMilliseconds();
 
             bool isAlt = (kbd->flags & LLKHF_ALTDOWN) || ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0);
             bool isShift = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
             bool isCtrl = (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
-            DWORD vk = kbd->vkCode;
 
-            // Debounce to prevent rapid fire while holding key
-            if (now >= s_instance->m_lastTriggerTime + 250) {
-                if (s_instance->m_isReceiver) {
-                    // Receiver local emergency dismiss:
-                    // 1) ESC key
-                    // 2) Alt + Shift + C
-                    // 3) Alt + Shift + X
-                    // 4) Ctrl + Shift + F10
-                    if (vk == VK_ESCAPE ||
+            if (s_instance->m_isReceiver) {
+                bool overlayVisible = OverlayWindow::Instance().IsVisible();
+                if (overlayVisible) {
+                    // Receiver local emergency dismiss when overlay is active:
+                    // ESC, C, X, Alt+Shift+C, Alt+Shift+X, Ctrl+Shift+F10
+                    if (vk == VK_ESCAPE || vk == 'C' || vk == 'c' || vk == 'X' || vk == 'x' ||
                         (isAlt && isShift && (vk == 'C' || vk == 'c' || vk == 'X' || vk == 'x')) ||
                         (isCtrl && isShift && vk == VK_F10)) {
                         s_instance->m_lastTriggerTime = now;
@@ -76,20 +85,38 @@ LRESULT CALLBACK HotkeyManager::LowLevelKeyboardProc(int nCode, WPARAM wParam, L
                         if (s_instance->onLocalDismiss) s_instance->onLocalDismiss();
                     }
                 } else {
-                    // Controller global triggers:
-                    if (isAlt && isShift && (vk == 'O' || vk == 'o')) {
+                    // Overlay is not visible: only explicit Alt+Shift+C / Alt+Shift+X
+                    if ((isAlt && isShift && (vk == 'C' || vk == 'c' || vk == 'X' || vk == 'x')) ||
+                        (isCtrl && isShift && vk == VK_F10)) {
+                        s_instance->m_lastTriggerTime = now;
+                        if (s_instance->onLocalDismiss) s_instance->onLocalDismiss();
+                    }
+                }
+            } else {
+                // Controller global triggers:
+                if (isAlt && isShift && (vk == 'O' || vk == 'o')) {
+                    if (!s_instance->m_oDown && now >= s_instance->m_lastTriggerTime + 200) {
+                        s_instance->m_oDown = true;
                         s_instance->m_lastTriggerTime = now;
                         std::cout << "\n[Keyboard Hook] ALT + SHIFT + O (Open Triggered)" << std::endl;
                         if (s_instance->onHotkeyTriggered) s_instance->onHotkeyTriggered(HotkeyAction::Open, now);
-                    } else if (isAlt && isShift && (vk == 'C' || vk == 'c')) {
+                    }
+                } else if (isAlt && isShift && (vk == 'C' || vk == 'c')) {
+                    if (!s_instance->m_cDown && now >= s_instance->m_lastTriggerTime + 200) {
+                        s_instance->m_cDown = true;
                         s_instance->m_lastTriggerTime = now;
                         std::cout << "\n[Keyboard Hook] ALT + SHIFT + C (Close Triggered)" << std::endl;
                         if (s_instance->onHotkeyTriggered) s_instance->onHotkeyTriggered(HotkeyAction::Close, now);
-                    } else if (isAlt && isShift && (vk == 'X' || vk == 'x')) {
+                    }
+                } else if (isAlt && isShift && (vk == 'X' || vk == 'x')) {
+                    if (!s_instance->m_xDown && now >= s_instance->m_lastTriggerTime + 200) {
+                        s_instance->m_xDown = true;
                         s_instance->m_lastTriggerTime = now;
                         std::cout << "\n[Keyboard Hook] ALT + SHIFT + X (Close Fallback Triggered)" << std::endl;
                         if (s_instance->onHotkeyTriggered) s_instance->onHotkeyTriggered(HotkeyAction::Close, now);
-                    } else if (isCtrl && isShift && vk == VK_F10) {
+                    }
+                } else if (isCtrl && isShift && vk == VK_F10) {
+                    if (now >= s_instance->m_lastTriggerTime + 200) {
                         s_instance->m_lastTriggerTime = now;
                         std::cout << "\n[Keyboard Hook] Emergency Escape Triggered" << std::endl;
                         if (s_instance->onHotkeyTriggered) s_instance->onHotkeyTriggered(HotkeyAction::EmergencyEscape, now);

@@ -30,13 +30,32 @@ Role StateManager::StringToRole(const std::string& str) {
     return Role::Unknown;
 }
 
-std::string StateManager::GetDefaultConfigPath() {
+std::string StateManager::GetDefaultConfigPath(Role role) {
     char appDataPath[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, appDataPath))) {
         std::string dir = std::string(appDataPath) + "\\PairPulse";
         CreateDirectoryA(dir.c_str(), NULL);
+        if (role == Role::Controller) {
+            std::string path = dir + "\\config_controller.json";
+            std::ifstream test(path);
+            if (test.good()) return path;
+            std::string legacy = dir + "\\config.json";
+            std::ifstream testLeg(legacy);
+            if (testLeg.good()) return legacy;
+            return path;
+        } else if (role == Role::Receiver) {
+            std::string path = dir + "\\config_receiver.json";
+            std::ifstream test(path);
+            if (test.good()) return path;
+            std::string legacy = dir + "\\config.json";
+            std::ifstream testLeg(legacy);
+            if (testLeg.good()) return legacy;
+            return path;
+        }
         return dir + "\\config.json";
     }
+    if (role == Role::Controller) return "pairpulse_config_controller.json";
+    if (role == Role::Receiver) return "pairpulse_config_receiver.json";
     return "pairpulse_config.json";
 }
 
@@ -71,8 +90,9 @@ static std::string ExtractJsonString(const std::string& json, const std::string&
     return json.substr(start + 1, end - start - 1);
 }
 
-bool StateManager::LoadConfig(const std::string& customPath) {
-    std::string path = customPath.empty() ? m_configFilePath : customPath;
+bool StateManager::LoadConfig(const std::string& customPath, Role role) {
+    std::string path = customPath.empty() ? GetDefaultConfigPath(role) : customPath;
+    m_configFilePath = path;
     std::ifstream file(path);
     if (!file.is_open()) return false;
 
@@ -96,7 +116,11 @@ bool StateManager::LoadConfig(const std::string& customPath) {
 }
 
 bool StateManager::SaveConfig(const std::string& customPath) {
-    std::string path = customPath.empty() ? m_configFilePath : customPath;
+    std::string path = customPath;
+    if (path.empty()) {
+        path = GetDefaultConfigPath(m_config.role);
+    }
+    m_configFilePath = path;
     std::ofstream file(path);
     if (!file.is_open()) return false;
 
@@ -114,6 +138,10 @@ bool StateManager::SaveConfig(const std::string& customPath) {
 bool StateManager::ResetConfig(const std::string& customPath) {
     std::string path = customPath.empty() ? m_configFilePath : customPath;
     DeleteFileA(path.c_str());
+    if (customPath.empty()) {
+        DeleteFileA(GetDefaultConfigPath(Role::Controller).c_str());
+        DeleteFileA(GetDefaultConfigPath(Role::Receiver).c_str());
+    }
     m_config.pairId.clear();
     m_config.token.clear();
     return true;

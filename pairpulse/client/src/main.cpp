@@ -180,8 +180,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
         }
     }
 
+    Role cliRole = roleArg.empty() ? Role::Unknown : StateManager::StringToRole(roleArg);
     auto& stateMgr = StateManager::Instance();
-    stateMgr.LoadConfig(customConfig);
+    stateMgr.LoadConfig(customConfig, cliRole);
     auto& cfg = stateMgr.GetConfig();
 
     if (resetCreds) {
@@ -190,8 +191,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
         return 0;
     }
 
-    if (!roleArg.empty()) {
-        cfg.role = StateManager::StringToRole(roleArg);
+    if (cliRole != Role::Unknown) {
+        cfg.role = cliRole;
     }
     if (!serverArg.empty()) {
         cfg.serverUrl = serverArg;
@@ -262,7 +263,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
         g_hotkeyManager->onHotkeyTriggered = [](HotkeyAction action, uint64_t t0) {
             uint64_t seq = ++g_sequenceNumber;
             std::string signalType = "OVERLAY_ON";
-            if (action == HotkeyAction::Close) signalType = "OVERLAY_OFF";
+            if (action == HotkeyAction::Close || action == HotkeyAction::EmergencyEscape) signalType = "OVERLAY_OFF";
             else if (action == HotkeyAction::Toggle) signalType = "OVERLAY_TOGGLE";
 
             // T1: Monotonic timestamp right before writing to already-open socket

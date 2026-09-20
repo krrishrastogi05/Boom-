@@ -28,14 +28,14 @@ class StateManager {
 public:
     static StateManager& Instance();
 
-    bool LoadConfig(const std::string& customPath = "");
+    bool LoadConfig(const std::string& customPath = "", Role role = Role::Unknown);
     bool SaveConfig(const std::string& customPath = "");
     bool ResetConfig(const std::string& customPath = "");
 
     Config& GetConfig() { return m_config; }
     const Config& GetConfig() const { return m_config; }
 
-    static std::string GetDefaultConfigPath();
+    static std::string GetDefaultConfigPath(Role role = Role::Unknown);
     static uint64_t GetEpochMilliseconds();
     static uint64_t GetMonotonicMicroseconds();
 

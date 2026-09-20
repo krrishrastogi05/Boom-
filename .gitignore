@@ -1,0 +1,30 @@
+# Node.js
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# CMake and C++ build artifacts
+build/
+bin/
+*.exe
+*.obj
+*.o
+*.lib
+*.a
+*.pdb
+*.ilk
+.vs/
+CMakeSettings.json
+out/
+
+# Environments and configs
+.env
+pairpulse_config.json
+
+# IDEs and OS
+.vscode/
+.idea/
+Thumbs.db
+[Dd]esktop.ini

@@ -1,0 +1,35 @@
+name: Build PairPulse Windows Client
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure CMake
+      run: |
+        cd pairpulse/client
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build pairpulse.exe
+      run: |
+        cd pairpulse/client
+        cmake --build build --config Release
+
+    - name: Upload pairpulse.exe Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pairpulse-windows-x64
+        path: |
+          pairpulse/client/build/Release/pairpulse.exe
+          pairpulse/client/build/pairpulse.exe
+        if-no-files-found: warn

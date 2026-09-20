@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Floofy | Reimagined Pet Adoption & Animal Rescue UX</title>
+  <meta name="description" content="A better world for every animal. Experience the reimagined Floofy pet adoption, emergency rescue reporting, and Pet-Rakshak guardian network." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ==========================================================================
+       TOP PRESENTATION TOOLBAR
+       Allows seamless evaluation, device frame switching, and direct screen jumps
+       ========================================================================== -->
+  <header class="presentation-bar" id="presentationBar">
+    <div class="presentation-left">
+      <div class="brand-badge">
+        <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+          <!-- Colorful Petals Rainbow Paw -->
+          <circle cx="28" cy="30" r="14" fill="#FFAA2C" />
+          <circle cx="50" cy="20" r="14" fill="#FF6542" />
+          <circle cx="72" cy="30" r="14" fill="#2B7FFF" />
+          <circle cx="85" cy="50" r="12" fill="#25835C" />
+          <circle cx="15" cy="50" r="12" fill="#FF4081" />
+          <path d="M50 45 C32 45, 24 62, 30 80 C34 90, 42 92, 50 92 C58 92, 66 90, 70 80 C76 62, 68 45, 50 45 Z" fill="#FF6542" />
+        </svg>
+        Floofy <span>UX 2.0</span>
+      </div>
+      <span class="badge-tag">Interactive Reimagining</span>
+    </div>
+
+    <div class="presentation-center">
+      <button class="screen-jump-btn active" data-screen="home">🏠 Home</button>
+      <button class="screen-jump-btn" data-screen="adopt">🐾 Adopt & Swipe</button>
+      <button class="screen-jump-btn" data-screen="report">🚨 SOS Rescue</button>
+      <button class="screen-jump-btn" data-screen="manage">📋 Foster CRM</button>
+      <button class="screen-jump-btn" data-screen="feed">📰 Furry Feed</button>
+      <button class="screen-jump-btn" data-screen="rakshak">🛡️ Pet-Rakshak</button>
+    </div>
+
+    <div class="presentation-right">
+      <div class="view-mode-toggle">
+        <button class="view-btn active" id="viewPhoneBtn">📱 Mobile Mockup</button>
+        <button class="view-btn" id="viewFullBtn">💻 Fullscreen</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       MAIN APP STAGE WITH PHONE CHASSIS & DYNAMIC ISLAND
+       ========================================================================== -->
+  <main class="app-stage" id="appStage">
+    <div class="device-frame" id="deviceFrame">
+      
+      <!-- Inside Screen Viewport -->
+      <div class="device-viewport">
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <span id="statusBarTime">9:41</span>
+          
+          <!-- Dynamic Island -->
+          <div class="dynamic-island" id="dynamicIsland" title="Floofy Smart Island">
+            <div class="island-camera"></div>
+            <div class="island-content" id="islandText">
+              <span>🐾</span> Floofy Safe
+            </div>
+            <div style="width:6px; height:6px; border-radius:50%; background:#25835C;"></div>
+          </div>
+
+          <div class="status-right">
+            <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor">
+              <path d="M1 9.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 3.5 12h-1A1.5 1.5 0 0 1 1 10.5v-1zm4-3a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v4A1.5 1.5 0 0 1 7.5 12h-1A1.5 1.5 0 0 1 5 10.5v-4zm4-3A1.5 1.5 0 0 1 10.5 2h1a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 11.5 12h-1A1.5 1.5 0 0 1 9 10.5v-7zm4-2A1.5 1.5 0 0 1 14.5 0h.5a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5h-.5a1.5 1.5 0 0 1-1.5-1.5v-9z"/>
+            </svg>
+            <span>5G</span>
+            <svg width="22" height="11" viewBox="0 0 25 12" fill="currentColor">
+              <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor"/>
+              <rect x="2" y="2" width="16" height="8" rx="2" fill="currentColor"/>
+              <path d="M23 4v4c.8 0 1.5-.7 1.5-1.5v-1c0-.8-.7-1.5-1.5-1.5z" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- App Header Bar -->
+        <header class="app-header">
+          <div class="header-brand" id="headerBrand">
+            <!-- Floofy Modern Vector Logo -->
+            <svg class="app-logo-svg" viewBox="0 0 100 100" fill="none">
+              <circle cx="28" cy="28" r="13" fill="#FFAA2C" />
+              <circle cx="50" cy="18" r="13" fill="#FF6542" />
+              <circle cx="72" cy="28" r="13" fill="#2B7FFF" />
+              <circle cx="86" cy="48" r="11" fill="#25835C" />
+              <circle cx="14" cy="48" r="11" fill="#FF4081" />
+              <path d="M50 44 C31 44, 23 62, 30 80 C34 90, 42 92, 50 92 C58 92, 66 90, 70 80 C77 62, 69 44, 50 44 Z" fill="#FF6542" />
+            </svg>
+            <div class="brand-text-col">
+              <span class="brand-title">Floofy</span>
+              <span class="brand-tagline">Adopt & Rescue</span>
+            </div>
+          </div>
+
+          <div class="header-location-pill" id="headerLocationPill" onclick="showToast('📍 Switched area to Indiranagar, Bengaluru')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+            </svg>
+            <span>Indiranagar, BLR</span>
+            <span style="font-size:9px; opacity:0.6;">▼</span>
+          </div>
+
+          <div class="header-actions">
+            <button class="icon-button" id="notifBellBtn" onclick="showToast('🔔 2 New updates: Shashi applied for Guddu • Vet drive in Indiranagar')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <span class="notification-badge">2</span>
+            </button>
+
+            <div class="user-avatar-btn" id="userAvatarBtn" title="Pet-Rakshak Profile">
+              <img src="assets/images/shashi.jpg" alt="Profile" />
+              <div class="rakshak-shield-badge">🛡️</div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Scrollable Screens Container -->
+        <div class="screens-container" id="screensContainer">
+
+          <!-- ==========================================================================
+               SCREEN 1: HOME SCREEN
+               ========================================================================== -->
+          <section class="screen-view active home-screen" id="screen-home">
+            
+            <!-- Hero Banner -->
+            <div class="hero-banner-card" id="heroBannerCard">
+              <img src="assets/images/hero_family.jpg" alt="Creating Happy Pet Families" class="hero-banner-image" />
+              <div class="hero-banner-overlay">
+                <span class="hero-banner-badge">✨ 890+ Adoptions This Year</span>
+                <h2 class="hero-banner-title">Creating Happy<br/>Pet Families</h2>
+                <div class="hero-banner-footer">
+                  <span style="font-size:11px; opacity:0.9;">Verified & vaccinated companions</span>
+                  <button class="hero-action-btn" id="heroActionBtn">
+                    <span>Find a Pet</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- The Reimagined Action Triad -->
+            <div class="action-triad-grid">
+              <!-- Adopt Card -->
+              <div class="triad-card triad-adopt" id="triadAdopt">
+                <span class="triad-pill-badge">120+</span>
+                <div class="triad-icon-bubble">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                  </svg>
+                </div>
+                <div class="triad-title">Adopt</div>
+                <div class="triad-subtitle">Find Companions</div>
+              </div>
+
+              <!-- Pet-Rakshak Network Card -->
+              <div class="triad-card triad-rakshak" id="triadRakshak">
+                <div class="triad-icon-bubble">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  </svg>
+                </div>
+                <div class="triad-title">Pet-Rakshak</div>
+                <div class="triad-subtitle">Guardian Network</div>
+              </div>
+
+              <!-- Report Distress / SOS Card -->
+              <div class="triad-card triad-report" id="triadReport">
+                <div class="triad-pulse-dot"></div>
+                <div class="triad-icon-bubble">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                </div>
+                <div class="triad-title">Report SOS</div>
+                <div class="triad-subtitle">Rescue in Distress</div>
+              </div>
+            </div>
+
+            <!-- Impact Counter -->
+            <div class="impact-bar">
+              <div class="impact-item">
+                <div class="impact-num">3,428</div>
+                <div class="impact-label">Rescues Done</div>
+              </div>
+              <div class="impact-divider"></div>
+              <div class="impact-item">
+                <div class="impact-num">892</div>
+                <div class="impact-label">Adopted</div>
+              </div>
+              <div class="impact-divider"></div>
+              <div class="impact-item">
+                <div class="impact-num">1,250+</div>
+                <div class="impact-label">Pet-Rakshaks</div>
+              </div>
+            </div>
+
+            <!-- Spotlight Urgent Needs -->
+            <div>
+              <div class="section-header">
+                <h3 class="section-title">
+                  <span>🐾</span> Pets Waiting for You
+                </h3>
+                <span class="section-see-all" onclick="navigateTo('adopt')">See All ➔</span>
+              </div>
+              <div class="spotlight-scroll" id="spotlightScroll">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Furry Feed Preview -->
+            <div>
+              <div class="section-header">
+                <h3 class="section-title">
+                  <span>📰</span> Furry Feed Stories
+                </h3>
+                <span class="section-see-all" onclick="navigateTo('feed')">Read More ➔</span>
+              </div>
+              <div class="feed-highlight-card" onclick="openStoryModal('croc-50')">
+                <div class="feed-img-wrap">
+                  <img src="assets/images/crocodile.jpg" alt="Crocodile conservation" />
+                  <span class="feed-category-chip">Conservation</span>
+                </div>
+                <div class="feed-card-body">
+                  <h4 class="feed-card-headline">Odisha Celebrates 50 Years of Crocodile Conservation</h4>
+                  <p class="feed-card-summary">Bhitarkanika National Park marks 50th anniversary on World Crocodile Day, growing from 96 crocodiles to over 1,800 healthy reptiles.</p>
+                  <div class="feed-card-meta">
+                    <span>Odisha, India • 3 min read</span>
+                    <span class="feed-cheer-btn">🐾 428 Cheers</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- ==========================================================================
+               SCREEN 2: DISCOVER & ADOPT (SWIPE DECK & CATALOG GRID)
+               ========================================================================== -->
+          <section class="screen-view adopt-screen" id="screen-adopt">
+            
+            <div class="adopt-top-controls">
+              <!-- Search & Filter Bar -->
+              <div class="search-filter-row">
+                <div class="search-input-wrap">
+                  <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" class="search-input" id="petSearchInput" placeholder="Search by breed, name, age..." />
+                </div>
+                <button class="filter-gear-btn" onclick="showToast('⚙️ Advanced Filters: Age, Size, Apartment-friendly, Vaccinated')" title="Advanced Filters">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="4" y1="21" x2="4" y2="14"></line>
+                    <line x1="4" y1="10" x2="4" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12" y2="3"></line>
+                    <line x1="20" y1="21" x2="20" y2="16"></line>
+                    <line x1="20" y1="12" x2="20" y2="3"></line>
+                    <line x1="1" y1="14" x2="7" y2="14"></line>
+                    <line x1="9" y1="8" x2="15" y2="8"></line>
+                    <line x1="17" y1="16" x2="23" y2="16"></line>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Filter Pills -->
+              <div class="filter-pills-row" id="adoptFilterPills">
+                <button class="filter-pill active" data-filter="all">All Pets</button>
+                <button class="filter-pill" data-filter="dogs">Dogs 🐕</button>
+                <button class="filter-pill" data-filter="cats">Cats 🐈</button>
+                <button class="filter-pill" data-filter="puppy">Puppies 🐾</button>
+                <button class="filter-pill" data-filter="urgent">Urgent Foster 🚨</button>
+              </div>
+
+              <!-- View Switcher -->
+              <div class="view-mode-bar">
+                <span class="results-count-text" id="adoptResultsCount">6 pets available</span>
+                <div class="deck-grid-switcher">
+                  <button class="switch-sub-btn active" id="switchDeckBtn">🎴 Swipe Deck</button>
+                  <button class="switch-sub-btn" id="switchGridBtn">▦ Catalog Grid</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 1. Swipe Deck View -->
+            <div class="swipe-deck-container" id="swipeDeckContainer">
+              <div class="card-deck" id="cardDeck">
+                <!-- Tinder cards populated by JavaScript -->
+              </div>
+
+              <!-- Deck Controls -->
+              <div class="deck-controls">
+                <button class="deck-action-btn btn-rewind" id="btnRewindCard" title="Rewind">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                  </svg>
+                </button>
+
+                <button class="deck-action-btn btn-reject" id="btnRejectCard" title="Pass">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+
+                <button class="deck-action-btn btn-info" id="btnInfoCard" title="View Details">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                </button>
+
+                <button class="deck-action-btn btn-heart" id="btnHeartCard" title="Love & Shortlist">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. Catalog Grid View (hidden by default) -->
+            <div class="catalog-grid-view" id="catalogGridView" style="display:none;">
+              <!-- Populated by JavaScript -->
+            </div>
+
+          </section>
+
+          <!-- ==========================================================================
+               SCREEN 3: REPORT CRUELTY / EMERGENCY SOS
+               ========================================================================== -->
+          <section class="screen-view report-screen" id="screen-report">
+            
+            <div class="sos-hero-card">
+              <div class="sos-banner-img-wrap">
+                <img src="assets/images/rescue_banner.jpg" alt="See something, do something" />
+              </div>
+              <div class="sos-hero-content">
+                <div class="sos-hero-title">
+                  <span>🚨</span> Report Animal Cruelty / Suffering
+                </div>
+                <div class="sos-hero-subtitle">One act of kindness can save a life. Fast volunteer dispatch.</div>
+              </div>
+            </div>
+
+            <div class="sos-form-section">
+              <!-- Step 1: Location -->
+              <div>
+                <div class="sos-step-title">
+                  <span class="step-num-badge">1</span>
+                  <span>Incident Location</span>
+                </div>
+                <div class="sos-location-card" style="margin-top:8px;">
+                  <div class="loc-row">
+                    <span class="loc-pin-icon">📍</span>
+                    <div>
+                      <div class="loc-address">100ft Road, near 12th Main, Indiranagar</div>
+                      <div class="loc-subtext">Bengaluru, Karnataka • GPS Precision: ±4m</div>
+                    </div>
+                  </div>
+                  <div class="radar-coverage-alert">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+                    <span><strong>14 Pet-Rakshaks & 3 Shelters</strong> in 5km will be alerted</span>
+                  </div>
+                  <button class="btn-crm-action btn-crm-review" id="gpsLocateBtn" style="padding:6px; font-size:11px;">
+                    🎯 Lock Current GPS Location
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 2: Severity -->
+              <div>
+                <div class="sos-step-title">
+                  <span class="step-num-badge">2</span>
+                  <span>Distress Type</span>
+                </div>
+                <div class="distress-category-chips" style="margin-top:8px;">
+                  <span class="distress-chip selected">Hit & Run / Injured 🚑</span>
+                  <span class="distress-chip">Chained / Abused ⛓️</span>
+                  <span class="distress-chip">Abandoned Pup 🐶</span>
+                  <span class="distress-chip">Severe Sickness 🩺</span>
+                  <span class="distress-chip">Trapped Animal 🆘</span>
+                </div>
+              </div>
+
+              <!-- Step 3: Media Evidence -->
+              <div>
+                <div class="sos-step-title">
+                  <span class="step-num-badge">3</span>
+                  <span>Evidence Photos / Video</span>
+                </div>
+                <div class="sos-upload-grid" style="margin-top:8px;">
+                  <div class="upload-slot">
+                    <span class="upload-plus-icon">+</span>
+                    <span class="upload-label">Photo 1</span>
+                  </div>
+                  <div class="upload-slot">
+                    <span class="upload-plus-icon">+</span>
+                    <span class="upload-label">Photo 2</span>
+                  </div>
+                  <div class="upload-slot">
+                    <span class="upload-plus-icon">+</span>
+                    <span class="upload-label">Short Clip</span>
+                  </div>
+                </div>
+                <div style="font-size:10px; color:var(--text-muted); margin-top:4px;">Tip: Clear photos help Pet-Rakshak vets bring the right medication.</div>
+              </div>
+
+              <!-- Step 4: Notes -->
+              <div>
+                <div class="sos-step-title">
+                  <span class="step-num-badge">4</span>
+                  <span>Situation Details (Optional)</span>
+                </div>
+                <textarea class="sos-notes-input" style="margin-top:8px;" placeholder="Describe animal condition, landmark or specific behavior..."></textarea>
+              </div>
+
+              <!-- Broadcast SOS Button -->
+              <button class="broadcast-sos-btn" id="broadcastSosBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <span>Broadcast SOS Alert to Pet-Rakshaks</span>
+              </button>
+            </div>
+
+          </section>
+
+          <!-- ==========================================================================
+               SCREEN 4: MANAGE ADOPTIONS (RESCUER CRM DASHBOARD)
+               ========================================================================== -->
+          <section class="screen-view manage-screen" id="screen-manage">
+            
+            <div class="manage-header-card">
+              <div>
+                <h2 class="manage-head-title">Manage Adoptions</h2>
+                <span class="manage-head-sub">Foster CRM & Adopter Screening</span>
+              </div>
+              <button class="btn-add-pet" id="btnAddPetCrm">+ Add Pet</button>
+            </div>
+
+            <!-- Pet Selector Bar -->
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">
+                Your Active Foster Pets
+              </div>
+              <div class="pet-selector-bar" id="petSelectorBar">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Kanban Adoption Journey Pipeline -->
+            <div class="pipeline-container" id="pipelineContainer">
+              <!-- Populated dynamically based on selected pet -->
+            </div>
+
+          </section>
+
+          <!-- ==========================================================================
+               SCREEN 5: FURRY FEED (COMMUNITY STORIES & NEWS)
+               ========================================================================== -->
+          <section class="screen-view feed-screen" id="screen-feed">
+            
+            <div class="feed-filter-bar">
+              <div>
+                <h2 style="font-size:18px; font-weight:800; color:var(--text-main);">Furry Feed</h2>
+                <div style="font-size:11px; color:var(--text-muted);">Weekly Inspiring Stories from Animal World</div>
+              </div>
+              <select class="feed-city-dropdown" onchange="showToast(`📍 Showing stories filtered by ${this.value}`)">
+                <option value="Bengaluru">Bengaluru</option>
+                <option value="India" selected>India</option>
+                <option value="World">World</option>
+              </select>
+            </div>
+
+            <div class="feed-list" id="feedListContainer">
+              <!-- Populated by JavaScript -->
+            </div>
+
+          </section>
+
+          <!-- ==========================================================================
+               SCREEN 6: PET-RAKSHAK GUARDIAN HUB
+               ========================================================================== -->
+          <section class="screen-view rakshak-screen" id="screen-rakshak">
+            
+            <div class="guardian-badge-card">
+              <img src="assets/images/shashi.jpg" class="guardian-avatar-lg" alt="Pet-Rakshak" />
+              <div class="guardian-details">
+                <div class="guardian-title">Shashi Palakurty</div>
+                <div class="guardian-meta">Verified Pet-Rakshak #248 • Gold Tier 🛡️</div>
+                <div style="margin-top:6px; font-size:11px; display:flex; gap:10px;">
+                  <span>🐾 24 Rescues</span>
+                  <span>🏡 18 Fosters</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-title" style="margin-bottom:10px;">
+                <span>⚡</span> Guardian Fast Actions
+              </div>
+              <div class="rakshak-tasks-grid">
+                <div class="rakshak-tile" onclick="showToast('🚨 Live Radar: 0 open SOS distress signals in your 2km radius right now!')">
+                  <div class="tile-icon-box">📡</div>
+                  <div class="tile-title">Live SOS Radar</div>
+                  <div class="tile-desc">View distress reports within 5km</div>
+                </div>
+
+                <div class="rakshak-tile" onclick="showToast('📞 24/7 Vet Ambulance hotline connected: 1800-FLOOFY-CARE')">
+                  <div class="tile-icon-box">🚑</div>
+                  <div class="tile-title">Vet Ambulance</div>
+                  <div class="tile-desc">Emergency mobile ICU dispatch</div>
+                </div>
+
+                <div class="rakshak-tile" onclick="showToast('💉 Anti-Rabies & 7-in-1 vaccination drive scheduled for this Sunday at Cubbon Park')">
+                  <div class="tile-icon-box">💉</div>
+                  <div class="tile-title">Vaccine Drive</div>
+                  <div class="tile-desc">Community stray inoculation</div>
+                </div>
+
+                <div class="rakshak-tile" onclick="showToast('📖 Floofy Pet First Aid Handbook downloaded to offline cache')">
+                  <div class="tile-icon-box">📖</div>
+                  <div class="tile-title">First Aid Guide</div>
+                  <div class="tile-desc">CPR, bandages & trauma handling</div>
+                </div>
+              </div>
+            </div>
+
+          </section>
+
+        </div>
+
+        <!-- ==========================================================================
+             BOTTOM DOCK NAVIGATION BAR
+             ========================================================================== -->
+        <nav class="bottom-nav-bar" id="bottomNavBar">
+          <button class="nav-tab-btn active" data-target="home">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>Home</span>
+          </button>
+
+          <button class="nav-tab-btn" data-target="adopt">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Adopt</span>
+          </button>
+
+          <!-- Raised Center SOS Action -->
+          <div class="nav-tab-sos" onclick="navigateTo('report')" title="Emergency SOS">
+            <div class="sos-dock-circle">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            </div>
+          </div>
+
+          <button class="nav-tab-btn" data-target="manage">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>Manage</span>
+          </button>
+
+          <button class="nav-tab-btn" data-target="feed">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span>Feed</span>
+          </button>
+        </nav>
+
+        <!-- Dynamic Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- ==========================================================================
+             MODALS & BOTTOM SHEETS
+             ========================================================================== -->
+        <!-- 1. Pet Detail Sheet -->
+        <div class="modal-overlay" id="petDetailModal">
+          <div class="bottom-sheet">
+            <div class="sheet-drag-handle btn-close-modal"></div>
+            <div class="sheet-scroll-body" id="petDetailModalBody">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Adopter Dossier Modal -->
+        <div class="modal-overlay" id="adopterDetailModal">
+          <div class="bottom-sheet">
+            <div class="sheet-drag-handle btn-close-modal"></div>
+            <div class="sheet-scroll-body" id="adopterDetailModalBody">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Furry Feed Story Modal -->
+        <div class="modal-overlay" id="storyDetailModal">
+          <div class="bottom-sheet">
+            <div class="sheet-drag-handle btn-close-modal"></div>
+            <div class="sheet-scroll-body" id="storyDetailModalBody">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. SOS Dispatch Radar Modal -->
+        <div class="modal-overlay" id="sosDispatchModal">
+          <div class="bottom-sheet">
+            <div class="sheet-drag-handle btn-close-modal"></div>
+            <div class="sheet-scroll-body" style="text-align:center; padding-top:20px;">
+              <div class="sos-radar-animation">
+                <div class="radar-circle"></div>
+                <div class="radar-circle"></div>
+                <div class="radar-circle"></div>
+                <div class="radar-core-icon">🚨</div>
+              </div>
+
+              <h2 id="dispatchStatusText" style="font-size:18px; font-weight:800; color:var(--text-main);">Broadcasting SOS to Pet-Rakshaks...</h2>
+              <p id="dispatchSubText" style="font-size:12px; color:var(--text-secondary); margin-top:4px;">Searching 5 km radius in Indiranagar</p>
+
+              <div id="responderProfileBox" style="display:none; margin-top:16px; background:#FAF7F4; border:1px solid var(--sage); border-radius:var(--radius-sm); padding:12px; text-align:left; align-items:center; gap:12px;">
+                <img src="assets/images/shashi.jpg" style="width:48px; height:48px; border-radius:50%; object-fit:cover;" />
+                <div style="flex:1;">
+                  <div style="font-size:13px; font-weight:800;">Vikram S. (Pet-Rakshak)</div>
+                  <div style="font-size:11px; color:var(--sage); font-weight:700;">✓ Animal Rescue Van En Route</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Vehicle: KA-04-MB-2024 • ETA: 8 Mins</div>
+                </div>
+                <button class="icon-button" style="background:var(--sage); color:#FFF; border:none;" onclick="showToast('📞 Direct call connected to Rescuer Vikram')">📞</button>
+              </div>
+
+              <button class="broadcast-sos-btn btn-close-modal" style="margin-top:20px; background:#182230; box-shadow:none;">
+                Dismiss / Keep Radar Live
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

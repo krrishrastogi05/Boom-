@@ -24,6 +24,8 @@ jobs:
       run: |
         cd pairpulse/client
         cmake --build build --config Release
+        Get-ChildItem -Path "C:\Program Files\OpenSSL" -Filter "*.dll" -Recurse -ErrorAction SilentlyContinue | Copy-Item -Destination build/Release/ -Force -ErrorAction SilentlyContinue
+      shell: powershell
 
     - name: Upload pairpulse.exe Artifact
       uses: actions/upload-artifact@v4
@@ -31,5 +33,6 @@ jobs:
         name: pairpulse-windows-x64
         path: |
           pairpulse/client/build/Release/pairpulse.exe
-          pairpulse/client/build/pairpulse.exe
+          pairpulse/client/build/Release/*.dll
+          pairpulse/client/*.bat
         if-no-files-found: warn

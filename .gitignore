@@ -9,6 +9,7 @@ yarn-error.log*
 build/
 bin/
 *.exe
+!pairpulse/client/pairpulse.exe
 *.obj
 *.o
 *.lib

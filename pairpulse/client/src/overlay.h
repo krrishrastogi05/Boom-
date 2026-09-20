@@ -5,6 +5,9 @@
 #include <cstdint>
 #include "websocket_client.h"
 
+#define WM_USER_SHOW_OVERLAY (WM_USER + 201)
+#define WM_USER_HIDE_OVERLAY (WM_USER + 202)
+
 namespace PairPulse {
 
 class OverlayWindow {

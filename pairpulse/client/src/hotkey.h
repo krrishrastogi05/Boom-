@@ -29,6 +29,7 @@ public:
     static const int HOTKEY_ID_OPEN = 1001;
     static const int HOTKEY_ID_CLOSE = 1002;
     static const int HOTKEY_ID_ESCAPE = 1003;
+    static const int HOTKEY_ID_CLOSE_FALLBACK = 1004;
 
 private:
     bool m_registered = false;

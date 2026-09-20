@@ -43,6 +43,11 @@ static void UpdateTrayTooltip(const std::wstring& statusText) {
 static LRESULT CALLBACK MsgWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_HOTKEY: {
+            if (wParam >= 9991 && wParam <= 9993) {
+                std::cout << "[Local Escape] Closing overlay via local hotkey." << std::endl;
+                OverlayWindow::Instance().Hide();
+                return 0;
+            }
             if (g_hotkeyManager) {
                 g_hotkeyManager->HandleHotkeyMessage(wParam, lParam);
             }
@@ -269,7 +274,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
 
     // Receiver: Handle Inbound Signaling Events
     if (cfg.role == Role::Receiver) {
+        // Register local dismiss hotkeys on Receiver
+        RegisterHotKey(g_msgHwnd, 9991, MOD_ALT | MOD_SHIFT, 'C');
+        RegisterHotKey(g_msgHwnd, 9992, MOD_ALT | MOD_SHIFT, 'X');
+
         g_wsClient->onOverlaySignal = [](const std::string& type, const SignalTimestamps& ts) {
+            std::cout << "\n[Remote Signal Received] " << type << " (Seq #" << ts.seq << ")" << std::endl;
             if (type == "OVERLAY_ON") {
                 OverlayWindow::Instance().Show(&ts);
             } else if (type == "OVERLAY_OFF") {

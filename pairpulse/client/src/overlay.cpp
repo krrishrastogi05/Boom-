@@ -118,20 +118,12 @@ void OverlayWindow::Show(const SignalTimestamps* ts) {
         }
     }
 
-    // Instantaneous activation of pre-created window
-    ShowWindow(m_hwnd, SW_SHOW);
-    SetForegroundWindow(m_hwnd);
-    SetWindowPos(m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-    m_isVisible = true;
-
-    InvalidateRect(m_hwnd, NULL, TRUE);
+    PostMessage(m_hwnd, WM_USER_SHOW_OVERLAY, 0, 0);
 }
 
 void OverlayWindow::Hide() {
     if (!m_hwnd) return;
-    ShowWindow(m_hwnd, SW_HIDE);
-    m_isVisible = false;
-    std::cout << "[Overlay] Hidden." << std::endl;
+    PostMessage(m_hwnd, WM_USER_HIDE_OVERLAY, 0, 0);
 }
 
 void OverlayWindow::Toggle(const SignalTimestamps* ts) {
@@ -202,6 +194,23 @@ void OverlayWindow::Render(HDC hdc) {
 
 LRESULT CALLBACK OverlayWindow::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
+        case WM_USER_SHOW_OVERLAY: {
+            ShowWindow(hwnd, SW_SHOW);
+            SetForegroundWindow(hwnd);
+            SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+            OverlayWindow::Instance().m_isVisible = true;
+            InvalidateRect(hwnd, NULL, TRUE);
+            return 0;
+        }
+
+        case WM_USER_HIDE_OVERLAY: {
+            ShowWindow(hwnd, SW_HIDE);
+            SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
+            OverlayWindow::Instance().m_isVisible = false;
+            std::cout << "[Overlay] Hidden." << std::endl;
+            return 0;
+        }
+
         case WM_PAINT: {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
@@ -210,11 +219,12 @@ LRESULT CALLBACK OverlayWindow::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
             return 0;
         }
 
+        case WM_SYSKEYDOWN:
         case WM_KEYDOWN: {
-            // Local Emergency Escape: User pressing ESC or Alt+Shift+C immediately closes overlay
+            // Local Emergency Escape: User pressing ESC, C, X, or Alt+Shift+C immediately closes overlay
             bool isAlt = (GetKeyState(VK_MENU) & 0x8000) != 0;
             bool isShift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
-            if (wParam == VK_ESCAPE || (wParam == 'C' && isAlt && isShift)) {
+            if (wParam == VK_ESCAPE || wParam == 'C' || wParam == 'c' || wParam == 'X' || wParam == 'x' || (wParam == 'C' && isAlt && isShift)) {
                 std::cout << "[Overlay] Local emergency escape key pressed." << std::endl;
                 OverlayWindow::Instance().Hide();
                 return 0;
@@ -222,11 +232,11 @@ LRESULT CALLBACK OverlayWindow::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
             return 0;
         }
 
-        // Intercept mouse clicks while active
+        // Intercept mouse clicks: clicking anywhere dismisses overlay
         case WM_LBUTTONDOWN:
-        case WM_RBUTTONDOWN:
-        case WM_MBUTTONDOWN: {
-            SetFocus(hwnd);
+        case WM_RBUTTONDOWN: {
+            std::cout << "[Overlay] Screen click detected - dismissing overlay." << std::endl;
+            OverlayWindow::Instance().Hide();
             return 0;
         }
 

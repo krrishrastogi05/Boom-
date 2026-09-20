@@ -54,7 +54,7 @@ bool OverlayWindow::Initialize(HINSTANCE hInstance) {
 
     // Pre-create fullscreen borderless topmost window
     m_hwnd = CreateWindowExW(
-        WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
+        WS_EX_TOPMOST,
         OVERLAY_CLASS_NAME,
         L"PairPulse Overlay",
         WS_POPUP,
@@ -196,8 +196,23 @@ LRESULT CALLBACK OverlayWindow::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
     switch (msg) {
         case WM_USER_SHOW_OVERLAY: {
             ShowWindow(hwnd, SW_SHOW);
-            SetForegroundWindow(hwnd);
             SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+
+            DWORD currentThreadId = GetCurrentThreadId();
+            HWND hFore = GetForegroundWindow();
+            DWORD foregroundThreadId = hFore ? GetWindowThreadProcessId(hFore, NULL) : 0;
+            if (foregroundThreadId != 0 && foregroundThreadId != currentThreadId) {
+                AttachThreadInput(currentThreadId, foregroundThreadId, TRUE);
+                SetForegroundWindow(hwnd);
+                SetActiveWindow(hwnd);
+                SetFocus(hwnd);
+                AttachThreadInput(currentThreadId, foregroundThreadId, FALSE);
+            } else {
+                SetForegroundWindow(hwnd);
+                SetActiveWindow(hwnd);
+                SetFocus(hwnd);
+            }
+
             OverlayWindow::Instance().m_isVisible = true;
             InvalidateRect(hwnd, NULL, TRUE);
             return 0;

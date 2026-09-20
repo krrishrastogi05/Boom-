@@ -127,11 +127,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
     // Initialize Windows networking subsystem
     ix::initNetSystem();
 
-    // Also attach console if invoked from terminal or enable stdout
-    AllocConsole();
+    // Attach to existing console if launched from terminal, else allocate new
+    if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
+        AllocConsole();
+    }
     FILE* fp;
     freopen_s(&fp, "CONOUT$", "w", stdout);
     freopen_s(&fp, "CONOUT$", "w", stderr);
+    freopen_s(&fp, "CONIN$", "r", stdin);
+
+    g_sequenceNumber = StateManager::GetEpochMilliseconds();
 
     std::cout << "======================================================" << std::endl;
     std::cout << " PairPulse Desktop Agent v1.0" << std::endl;
@@ -252,6 +257,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
     if (cfg.role == Role::Controller) {
         g_hotkeyManager = std::make_unique<HotkeyManager>();
         g_hotkeyManager->RegisterHotkeys(g_msgHwnd);
+        g_hotkeyManager->InstallKeyboardHook(false);
 
         g_hotkeyManager->onHotkeyTriggered = [](HotkeyAction action, uint64_t t0) {
             uint64_t seq = ++g_sequenceNumber;
@@ -272,11 +278,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
         };
     }
 
-    // Receiver: Handle Inbound Signaling Events
+    // Receiver: Handle Inbound Signaling Events & Local Dismissals
     if (cfg.role == Role::Receiver) {
+        g_hotkeyManager = std::make_unique<HotkeyManager>();
+        g_hotkeyManager->InstallKeyboardHook(true);
+        g_hotkeyManager->onLocalDismiss = []() {
+            OverlayWindow::Instance().Hide();
+        };
+
         // Register local dismiss hotkeys on Receiver
         RegisterHotKey(g_msgHwnd, 9991, MOD_ALT | MOD_SHIFT, 'C');
         RegisterHotKey(g_msgHwnd, 9992, MOD_ALT | MOD_SHIFT, 'X');
+        RegisterHotKey(g_msgHwnd, 9993, 0, VK_ESCAPE);
 
         g_wsClient->onOverlaySignal = [](const std::string& type, const SignalTimestamps& ts) {
             std::cout << "\n[Remote Signal Received] " << type << " (Seq #" << ts.seq << ")" << std::endl;
@@ -311,12 +324,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
     // Main Win32 Event Loop
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0)) {
+        if (msg.message == WM_HOTKEY) {
+            if (msg.wParam >= 9991 && msg.wParam <= 9993) {
+                std::cout << "[Local Escape] Closing overlay via local hotkey." << std::endl;
+                OverlayWindow::Instance().Hide();
+            } else if (g_hotkeyManager) {
+                g_hotkeyManager->HandleHotkeyMessage(msg.wParam, msg.lParam);
+            }
+        }
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 
     // Cleanup on exit
-    if (g_hotkeyManager) g_hotkeyManager->UnregisterHotkeys(g_msgHwnd);
+    if (g_hotkeyManager) {
+        g_hotkeyManager->UninstallKeyboardHook();
+        g_hotkeyManager->UnregisterHotkeys(g_msgHwnd);
+    }
     if (g_wsClient) g_wsClient->Disconnect();
     OverlayWindow::Instance().Destroy();
     if (g_msgHwnd) DestroyWindow(g_msgHwnd);

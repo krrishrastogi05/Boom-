@@ -8,9 +8,98 @@
 
 namespace PairPulse {
 
-HotkeyManager::HotkeyManager() {}
+HotkeyManager* HotkeyManager::s_instance = nullptr;
 
-HotkeyManager::~HotkeyManager() {}
+HotkeyManager::HotkeyManager() {
+    s_instance = this;
+}
+
+HotkeyManager::~HotkeyManager() {
+    UninstallKeyboardHook();
+    if (s_instance == this) s_instance = nullptr;
+}
+
+bool HotkeyManager::InstallKeyboardHook(bool isReceiver) {
+    m_isReceiver = isReceiver;
+    if (m_hook) return true;
+
+    m_hook = SetWindowsHookExW(
+        WH_KEYBOARD_LL,
+        HotkeyManager::LowLevelKeyboardProc,
+        GetModuleHandle(NULL),
+        0
+    );
+
+    if (m_hook) {
+        std::cout << "[Keyboard Hook] Low-level system keyboard hook installed ("
+                  << (isReceiver ? "Receiver Dismiss Hook" : "Controller Hotkey Hook")
+                  << ")." << std::endl;
+        return true;
+    } else {
+        std::cerr << "[Keyboard Hook] Failed to install low-level hook. Error: " << GetLastError() << std::endl;
+        return false;
+    }
+}
+
+void HotkeyManager::UninstallKeyboardHook() {
+    if (m_hook) {
+        UnhookWindowsHookEx(m_hook);
+        m_hook = NULL;
+        std::cout << "[Keyboard Hook] Low-level system keyboard hook uninstalled." << std::endl;
+    }
+}
+
+LRESULT CALLBACK HotkeyManager::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    if (nCode == HC_ACTION && s_instance) {
+        if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
+            KBDLLHOOKSTRUCT* kbd = reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam);
+            uint64_t now = StateManager::GetEpochMilliseconds();
+
+            bool isAlt = (kbd->flags & LLKHF_ALTDOWN) || ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0);
+            bool isShift = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+            bool isCtrl = (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
+            DWORD vk = kbd->vkCode;
+
+            // Debounce to prevent rapid fire while holding key
+            if (now >= s_instance->m_lastTriggerTime + 250) {
+                if (s_instance->m_isReceiver) {
+                    // Receiver local emergency dismiss:
+                    // 1) ESC key
+                    // 2) Alt + Shift + C
+                    // 3) Alt + Shift + X
+                    // 4) Ctrl + Shift + F10
+                    if (vk == VK_ESCAPE ||
+                        (isAlt && isShift && (vk == 'C' || vk == 'c' || vk == 'X' || vk == 'x')) ||
+                        (isCtrl && isShift && vk == VK_F10)) {
+                        s_instance->m_lastTriggerTime = now;
+                        std::cout << "\n[Keyboard Hook] Local dismiss triggered via keyboard (" << vk << ")" << std::endl;
+                        if (s_instance->onLocalDismiss) s_instance->onLocalDismiss();
+                    }
+                } else {
+                    // Controller global triggers:
+                    if (isAlt && isShift && (vk == 'O' || vk == 'o')) {
+                        s_instance->m_lastTriggerTime = now;
+                        std::cout << "\n[Keyboard Hook] ALT + SHIFT + O (Open Triggered)" << std::endl;
+                        if (s_instance->onHotkeyTriggered) s_instance->onHotkeyTriggered(HotkeyAction::Open, now);
+                    } else if (isAlt && isShift && (vk == 'C' || vk == 'c')) {
+                        s_instance->m_lastTriggerTime = now;
+                        std::cout << "\n[Keyboard Hook] ALT + SHIFT + C (Close Triggered)" << std::endl;
+                        if (s_instance->onHotkeyTriggered) s_instance->onHotkeyTriggered(HotkeyAction::Close, now);
+                    } else if (isAlt && isShift && (vk == 'X' || vk == 'x')) {
+                        s_instance->m_lastTriggerTime = now;
+                        std::cout << "\n[Keyboard Hook] ALT + SHIFT + X (Close Fallback Triggered)" << std::endl;
+                        if (s_instance->onHotkeyTriggered) s_instance->onHotkeyTriggered(HotkeyAction::Close, now);
+                    } else if (isCtrl && isShift && vk == VK_F10) {
+                        s_instance->m_lastTriggerTime = now;
+                        std::cout << "\n[Keyboard Hook] Emergency Escape Triggered" << std::endl;
+                        if (s_instance->onHotkeyTriggered) s_instance->onHotkeyTriggered(HotkeyAction::EmergencyEscape, now);
+                    }
+                }
+            }
+        }
+    }
+    return CallNextHookEx(s_instance ? s_instance->m_hook : NULL, nCode, wParam, lParam);
+}
 
 bool HotkeyManager::RegisterHotkeys(HWND hwnd) {
     auto& cfg = StateManager::Instance().GetConfig();
@@ -53,19 +142,26 @@ void HotkeyManager::UnregisterHotkeys(HWND hwnd) {
 }
 
 bool HotkeyManager::HandleHotkeyMessage(WPARAM wParam, LPARAM /*lParam*/) {
-    // T0: Monotonic epoch millisecond timestamp taken at the earliest possible instant
     uint64_t t0 = StateManager::GetEpochMilliseconds();
+
+    // Debounce to prevent duplicate dispatch if WH_KEYBOARD_LL already triggered
+    if (t0 < m_lastTriggerTime + 200) {
+        return false;
+    }
 
     int hotkeyId = static_cast<int>(wParam);
     if (hotkeyId == HOTKEY_ID_OPEN) {
+        m_lastTriggerTime = t0;
         std::cout << "\n[Hotkey Detected] ALT + SHIFT + O (Open Triggered)" << std::endl;
         if (onHotkeyTriggered) onHotkeyTriggered(HotkeyAction::Open, t0);
         return true;
     } else if (hotkeyId == HOTKEY_ID_CLOSE || hotkeyId == HOTKEY_ID_CLOSE_FALLBACK) {
+        m_lastTriggerTime = t0;
         std::cout << "\n[Hotkey Detected] Close Hotkey Triggered" << std::endl;
         if (onHotkeyTriggered) onHotkeyTriggered(HotkeyAction::Close, t0);
         return true;
     } else if (hotkeyId == HOTKEY_ID_ESCAPE) {
+        m_lastTriggerTime = t0;
         std::cout << "\n[Hotkey Detected] Emergency Escape Triggered" << std::endl;
         if (onHotkeyTriggered) onHotkeyTriggered(HotkeyAction::EmergencyEscape, t0);
         return true;

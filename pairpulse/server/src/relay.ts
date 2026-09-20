@@ -180,6 +180,7 @@ export class RelayServer {
         const pairSession = this.getOrCreatePairSession(msg.pairId);
         if (msg.role === 'controller') {
           pairSession.controllerSocket = session.ws;
+          pairSession.lastSeq = 0; // Reset sequence on controller authentication
         } else {
           pairSession.receiverSocket = session.ws;
         }
@@ -273,7 +274,7 @@ export class RelayServer {
 
     // Monotonic sequence number validation
     if (typeof msg.seq === 'number') {
-      if (msg.seq <= pairSession.lastSeq) {
+      if (pairSession.lastSeq > 0 && msg.seq <= pairSession.lastSeq && (pairSession.lastSeq - msg.seq) < 50) {
         console.warn(`[Relay] Ignored stale sequence number: ${msg.seq} (last: ${pairSession.lastSeq})`);
         return;
       }

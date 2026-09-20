@@ -13,7 +13,7 @@ enum class Role {
 };
 
 struct Config {
-    std::string serverUrl = "ws://localhost:8080";
+    std::string serverUrl = "wss://boom-ba63.onrender.com";
     Role role = Role::Unknown;
     std::string pairId;
     std::string token;

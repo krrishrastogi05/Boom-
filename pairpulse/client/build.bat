@@ -51,7 +51,7 @@ if exist Release\pairpulse.exe (
 
 echo.
 echo You can now run:
-echo   Laptop A (Controller): pairpulse.exe --role controller --server ws://localhost:8080
-echo   Laptop B (Receiver):   pairpulse.exe --role receiver --server ws://localhost:8080 --pair <code>
+echo   Laptop A (Controller): pairpulse.exe --role controller --server wss://boom-ba63.onrender.com
+echo   Laptop B (Receiver):   pairpulse.exe --role receiver --server wss://boom-ba63.onrender.com --pair <code>
 echo.
 pause

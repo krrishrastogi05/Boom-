@@ -239,9 +239,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
     g_pairingManager = std::make_unique<PairingManager>(*g_wsClient);
     g_pairingManager->Initialize();
 
-    g_wsClient->onConnectionStateChanged = [](bool isConnected) {
+    g_wsClient->AddConnectionListener([](bool isConnected) {
         UpdateTrayTooltip(isConnected ? L"Connected" : L"Reconnecting...");
-    };
+    });
 
     // Controller: Global Hotkey Registration & Fast Hot Path
     if (cfg.role == Role::Controller) {

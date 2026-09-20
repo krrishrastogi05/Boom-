@@ -51,18 +51,18 @@ void PairingManager::Initialize() {
         StateManager::Instance().ResetConfig();
     };
 
-    m_wsClient.onConnectionStateChanged = [this](bool isConnected) {
+    m_wsClient.AddConnectionListener([this](bool isConnected) {
         if (isConnected) {
-            std::cout << "[Connection] Connected to relay server." << std::endl;
+            std::cout << "[Connection] Connected to relay server successfully." << std::endl;
             auto& cfg = StateManager::Instance().GetConfig();
             if (IsPaired()) {
                 std::cout << "[Auth] Authenticating with stored credentials..." << std::endl;
                 m_wsClient.Authenticate(cfg.token, StateManager::RoleToString(cfg.role), cfg.pairId);
             }
         } else {
-            std::cout << "[Connection] Disconnected from relay server. Will reconnect automatically..." << std::endl;
+            std::cout << "[Connection] Disconnected from relay server. Reconnecting automatically..." << std::endl;
         }
-    };
+    });
 }
 
 bool PairingManager::IsPaired() const {

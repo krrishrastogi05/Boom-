@@ -80,9 +80,16 @@ void WebSocketClient::Connect(const std::string& url) {
     m_ws->setOnMessageCallback([this](const ix::WebSocketMessagePtr& msg) {
         if (msg->type == ix::WebSocketMessageType::Open) {
             m_isConnected = true;
+            for (auto& listener : m_connectionListeners) {
+                if (listener) listener(true);
+            }
             if (onConnectionStateChanged) onConnectionStateChanged(true);
+            FlushPendingMessages();
         } else if (msg->type == ix::WebSocketMessageType::Close) {
             m_isConnected = false;
+            for (auto& listener : m_connectionListeners) {
+                if (listener) listener(false);
+            }
             if (onConnectionStateChanged) onConnectionStateChanged(false);
         } else if (msg->type == ix::WebSocketMessageType::Error) {
             std::cerr << "[WebSocket] Error: " << msg->errorInfo.reason << std::endl;
@@ -93,6 +100,30 @@ void WebSocketClient::Connect(const std::string& url) {
     });
 
     m_ws->start();
+}
+
+void WebSocketClient::AddConnectionListener(std::function<void(bool isConnected)> listener) {
+    m_connectionListeners.push_back(listener);
+}
+
+void WebSocketClient::FlushPendingMessages() {
+    if (m_pendingPairRequest) {
+        m_pendingPairRequest = false;
+        m_ws->sendText("{\"type\":\"PAIR_REQUEST\"}");
+    }
+    if (!m_pendingPairConfirmCode.empty()) {
+        std::string payload = "{\"type\":\"PAIR_CONFIRM\",\"code\":\"" + m_pendingPairConfirmCode + "\",\"role\":\"" + m_pendingPairConfirmRole + "\"}";
+        m_pendingPairConfirmCode.clear();
+        m_pendingPairConfirmRole.clear();
+        m_ws->sendText(payload);
+    }
+    if (!m_pendingAuthToken.empty()) {
+        std::string payload = "{\"type\":\"AUTH\",\"token\":\"" + m_pendingAuthToken + "\",\"role\":\"" + m_pendingAuthRole + "\",\"pairId\":\"" + m_pendingAuthPairId + "\"}";
+        m_pendingAuthToken.clear();
+        m_pendingAuthRole.clear();
+        m_pendingAuthPairId.clear();
+        m_ws->sendText(payload);
+    }
 }
 
 void WebSocketClient::Disconnect() {
@@ -112,20 +143,32 @@ void WebSocketClient::SendOverlaySignal(const std::string& type, uint64_t seq, u
 }
 
 void WebSocketClient::RequestPairCode() {
-    if (!m_isConnected) return;
-    m_ws->sendText("{\"type\":\"PAIR_REQUEST\"}");
+    if (m_isConnected) {
+        m_ws->sendText("{\"type\":\"PAIR_REQUEST\"}");
+    } else {
+        m_pendingPairRequest = true;
+    }
 }
 
 void WebSocketClient::ConfirmPairCode(const std::string& code, const std::string& role) {
-    if (!m_isConnected) return;
-    std::string payload = "{\"type\":\"PAIR_CONFIRM\",\"code\":\"" + code + "\",\"role\":\"" + role + "\"}";
-    m_ws->sendText(payload);
+    if (m_isConnected) {
+        std::string payload = "{\"type\":\"PAIR_CONFIRM\",\"code\":\"" + code + "\",\"role\":\"" + role + "\"}";
+        m_ws->sendText(payload);
+    } else {
+        m_pendingPairConfirmCode = code;
+        m_pendingPairConfirmRole = role;
+    }
 }
 
 void WebSocketClient::Authenticate(const std::string& token, const std::string& role, const std::string& pairId) {
-    if (!m_isConnected) return;
-    std::string payload = "{\"type\":\"AUTH\",\"token\":\"" + token + "\",\"role\":\"" + role + "\",\"pairId\":\"" + pairId + "\"}";
-    m_ws->sendText(payload);
+    if (m_isConnected) {
+        std::string payload = "{\"type\":\"AUTH\",\"token\":\"" + token + "\",\"role\":\"" + role + "\",\"pairId\":\"" + pairId + "\"}";
+        m_ws->sendText(payload);
+    } else {
+        m_pendingAuthToken = token;
+        m_pendingAuthRole = role;
+        m_pendingAuthPairId = pairId;
+    }
 }
 
 void WebSocketClient::SendStateSyncRequest() {

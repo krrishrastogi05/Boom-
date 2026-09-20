@@ -2,6 +2,7 @@
 
 #include <string>
 #include <functional>
+#include <vector>
 #include <memory>
 #include <atomic>
 #include <cstdint>
@@ -31,6 +32,7 @@ public:
     void Connect(const std::string& url);
     void Disconnect();
     bool IsConnected() const { return m_isConnected; }
+    void AddConnectionListener(std::function<void(bool isConnected)> listener);
 
     // Fast Hot Path Sending
     void SendOverlaySignal(const std::string& type, uint64_t seq, uint64_t t0, uint64_t t1);
@@ -51,9 +53,17 @@ public:
     std::function<void(const std::string& state, uint64_t seq, bool pairedOnline)> onStateSync;
 
 private:
+    void FlushPendingMessages();
     void HandleIncomingMessage(const std::string& text, uint64_t t4);
     std::unique_ptr<ix::WebSocket> m_ws;
     std::atomic<bool> m_isConnected{false};
+    std::vector<std::function<void(bool isConnected)>> m_connectionListeners;
+    std::atomic<bool> m_pendingPairRequest{false};
+    std::string m_pendingPairConfirmCode;
+    std::string m_pendingPairConfirmRole;
+    std::string m_pendingAuthToken;
+    std::string m_pendingAuthRole;
+    std::string m_pendingAuthPairId;
 };
 
 } // namespace PairPulse

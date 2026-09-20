@@ -1,6 +1,10 @@
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
 #include "websocket_client.h"
 #include "state.h"
 #include <ixwebsocket/IXWebSocket.h>
+#include <ixwebsocket/IXNetSystem.h>
 #include <iostream>
 #include <sstream>
 
@@ -48,11 +52,20 @@ static bool ParseBoolKey(const std::string& json, const std::string& key) {
 }
 
 WebSocketClient::WebSocketClient() {
+#ifdef _WIN32
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2, 2), &wsaData);
+    ix::initNetSystem();
+#endif
     m_ws = std::make_unique<ix::WebSocket>();
 }
 
 WebSocketClient::~WebSocketClient() {
     Disconnect();
+#ifdef _WIN32
+    ix::uninitNetSystem();
+    WSACleanup();
+#endif
 }
 
 void WebSocketClient::Connect(const std::string& url) {

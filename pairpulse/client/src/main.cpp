@@ -1,3 +1,4 @@
+#include <winsock2.h>
 #include <windows.h>
 #include <shellapi.h>
 #include <iostream>
@@ -5,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <atomic>
+#include <ixwebsocket/IXNetSystem.h>
 
 #include "state.h"
 #include "websocket_client.h"
@@ -117,6 +119,9 @@ static void PrintUsage() {
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nCmdShow*/) {
+    // Initialize Windows networking subsystem
+    ix::initNetSystem();
+
     // Also attach console if invoked from terminal or enable stdout
     AllocConsole();
     FILE* fp;
@@ -304,6 +309,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
     if (g_wsClient) g_wsClient->Disconnect();
     OverlayWindow::Instance().Destroy();
     if (g_msgHwnd) DestroyWindow(g_msgHwnd);
+
+    ix::uninitNetSystem();
 
     return static_cast<int>(msg.wParam);
 }

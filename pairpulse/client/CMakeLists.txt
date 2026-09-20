@@ -4,11 +4,10 @@ project(pairpulse VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Configure IXWebSocket using native Windows SChannel TLS
+# Configure IXWebSocket using OpenSSL for TLS
 set(USE_TLS ON CACHE BOOL "" FORCE)
-set(USE_SCHANNEL ON CACHE BOOL "" FORCE)
+set(USE_OPENSSL ON CACHE BOOL "" FORCE)
 set(USE_MBED_TLS OFF CACHE BOOL "" FORCE)
-set(USE_OPENSSL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 include(FetchContent)

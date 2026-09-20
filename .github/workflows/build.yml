@@ -18,7 +18,7 @@ jobs:
     - name: Configure CMake
       run: |
         cd pairpulse/client
-        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -DUSE_TLS=ON -DUSE_OPENSSL=ON -DUSE_MBED_TLS=OFF
 
     - name: Build pairpulse.exe
       run: |

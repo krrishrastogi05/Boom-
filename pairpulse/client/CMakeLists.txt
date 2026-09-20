@@ -4,10 +4,11 @@ project(pairpulse VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Configure IXWebSocket using OpenSSL for TLS
+# Configure IXWebSocket using OpenSSL for TLS, disable ZLIB for lowest latency
 set(USE_TLS ON CACHE BOOL "" FORCE)
 set(USE_OPEN_SSL ON CACHE BOOL "" FORCE)
 set(USE_MBED_TLS OFF CACHE BOOL "" FORCE)
+set(USE_ZLIB OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 include(FetchContent)

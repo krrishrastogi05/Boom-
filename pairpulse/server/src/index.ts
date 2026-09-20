@@ -37,8 +37,12 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
     .meta-value { font-size: 16px; font-weight: 600; color: var(--cyan); margin-top: 4px; word-break: break-all; }
     .btn { background: var(--cyan); color: #000; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; transition: all 0.2s; font-size: 14px; }
     .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .btn-open { background: #22c55e; color: #000; }
+    .btn-close { background: #ef4444; color: #fff; }
     .log-box { background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 13px; color: #a3e635; margin-top: 16px; min-height: 80px; max-height: 150px; overflow-y: auto; line-height: 1.5; }
     .notice { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 20px; padding: 12px; background: rgba(56, 189, 248, 0.05); border-left: 3px solid var(--cyan); border-radius: 4px; }
+    .shortcut-badge { background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-left: 4px; }
   </style>
 </head>
 <body>
@@ -64,17 +68,69 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
     </div>
 
     <button class="btn" onclick="testLiveWebSocket()">▶ Test Live Browser WebSocket Handshake</button>
-    <div class="log-box" id="log">Ready to test connection. Click the button above.</div>
+
+    <div class="btn-row">
+      <button class="btn btn-open" id="btnOpen" onclick="sendSignalAction('OVERLAY_ON')">
+        🟢 Open <span class="shortcut-badge">Alt+Shift+O</span>
+      </button>
+      <button class="btn btn-close" id="btnClose" onclick="sendSignalAction('OVERLAY_OFF')">
+        🔴 Close <span class="shortcut-badge">Alt+Shift+C</span>
+      </button>
+    </div>
+
+    <div class="log-box" id="log">Ready. Use the buttons above or global hotkeys [Alt+Shift+O] and [Alt+Shift+C].</div>
 
     <div class="notice">
-      <strong>Note:</strong> Browsers cannot run desktop hotkeys or fullscreen overlays directly in the address bar. 
-      Use <code>pairpulse.exe</code> on Laptop A & Laptop B with this relay URL.
+      <strong>Hotkeys Configured:</strong><br>
+      • <strong>ALT + SHIFT + O</strong>: Open Remote Overlay<br>
+      • <strong>ALT + SHIFT + C</strong>: Close Remote Overlay<br>
+      • <strong>ESC / CTRL + SHIFT + F10</strong>: Emergency Local Escape
     </div>
   </div>
 
   <script>
     const wssUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host;
     document.getElementById('urlDisplay').textContent = wssUrl;
+
+    let liveWs = null;
+
+    function getOrCreateWs(onReady) {
+      if (liveWs && liveWs.readyState === WebSocket.OPEN) {
+        onReady(liveWs);
+        return;
+      }
+      const log = document.getElementById('log');
+      log.textContent += 'Connecting persistent WebSocket...\\n';
+      liveWs = new WebSocket(wssUrl);
+      liveWs.onopen = () => {
+        log.textContent += '✓ WebSocket connection established.\\n';
+        onReady(liveWs);
+      };
+      liveWs.onmessage = (e) => {
+        const msg = JSON.parse(e.data);
+        log.textContent += '← [' + msg.type + '] ' + JSON.stringify(msg) + '\\n';
+        log.scrollTop = log.scrollHeight;
+      };
+      liveWs.onerror = (err) => {
+        log.textContent += '✗ WebSocket Error: ' + err.message + '\\n';
+      };
+    }
+
+    function sendSignalAction(type) {
+      const log = document.getElementById('log');
+      const t0 = Date.now();
+      getOrCreateWs((ws) => {
+        const payload = {
+          type: type,
+          seq: Math.floor(Math.random() * 100000),
+          t0: t0,
+          t1: Date.now()
+        };
+        ws.send(JSON.stringify(payload));
+        log.textContent += '→ Triggered ' + type + ' (' + (type === 'OVERLAY_ON' ? 'Alt+Shift+O' : 'Alt+Shift+C') + ')\\n';
+        log.scrollTop = log.scrollHeight;
+      });
+    }
 
     function testLiveWebSocket() {
       const log = document.getElementById('log');
@@ -92,7 +148,7 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
       ws.onmessage = (e) => {
         const msg = JSON.parse(e.data);
         log.textContent += '✓ [REPLY] Received ' + msg.type + ' with code: ' + (msg.code || 'N/A') + '\\n';
-        log.textContent += '★ Live Relay handshake 100% verified!';
+        log.textContent += '★ Live Relay handshake 100% verified!\\n';
         ws.close();
       };
 
@@ -100,6 +156,17 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
         log.textContent += '✗ [ERROR] Could not connect: ' + err.message + '\\n';
       };
     }
+
+    // Keyboard shortcut listeners on dashboard
+    window.addEventListener('keydown', (e) => {
+      if (e.altKey && e.shiftKey && (e.key === 'O' || e.key === 'o')) {
+        e.preventDefault();
+        sendSignalAction('OVERLAY_ON');
+      } else if (e.altKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
+        e.preventDefault();
+        sendSignalAction('OVERLAY_OFF');
+      }
+    });
   </script>
 </body>
 </html>`;

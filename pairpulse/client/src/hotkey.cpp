@@ -15,16 +15,16 @@ HotkeyManager::~HotkeyManager() {}
 bool HotkeyManager::RegisterHotkeys(HWND hwnd) {
     auto& cfg = StateManager::Instance().GetConfig();
 
-    // Toggle Hotkey (Default: Ctrl + Shift + F12)
-    BOOL okToggle = RegisterHotKey(hwnd, HOTKEY_ID_TOGGLE, cfg.toggleHotkeyMod | MOD_NOREPEAT, cfg.toggleHotkeyKey);
-    if (!okToggle) {
-        okToggle = RegisterHotKey(hwnd, HOTKEY_ID_TOGGLE, cfg.toggleHotkeyMod, cfg.toggleHotkeyKey);
+    // Open Hotkey (Alt + Shift + O)
+    BOOL okOpen = RegisterHotKey(hwnd, HOTKEY_ID_OPEN, cfg.openHotkeyMod | MOD_NOREPEAT, cfg.openHotkeyKey);
+    if (!okOpen) {
+        okOpen = RegisterHotKey(hwnd, HOTKEY_ID_OPEN, cfg.openHotkeyMod, cfg.openHotkeyKey);
     }
 
-    // Force OFF Hotkey (Default: Ctrl + Shift + F11)
-    BOOL okOff = RegisterHotKey(hwnd, HOTKEY_ID_FORCE_OFF, cfg.offHotkeyMod | MOD_NOREPEAT, cfg.offHotkeyKey);
-    if (!okOff) {
-        okOff = RegisterHotKey(hwnd, HOTKEY_ID_FORCE_OFF, cfg.offHotkeyMod, cfg.offHotkeyKey);
+    // Close Hotkey (Alt + Shift + C)
+    BOOL okClose = RegisterHotKey(hwnd, HOTKEY_ID_CLOSE, cfg.closeHotkeyMod | MOD_NOREPEAT, cfg.closeHotkeyKey);
+    if (!okClose) {
+        okClose = RegisterHotKey(hwnd, HOTKEY_ID_CLOSE, cfg.closeHotkeyMod, cfg.closeHotkeyKey);
     }
 
     // Emergency Local Escape Hotkey (Ctrl + Shift + F10)
@@ -33,20 +33,20 @@ bool HotkeyManager::RegisterHotkeys(HWND hwnd) {
         okEsc = RegisterHotKey(hwnd, HOTKEY_ID_ESCAPE, MOD_CONTROL | MOD_SHIFT, VK_F10);
     }
 
-    m_registered = okToggle && okOff;
+    m_registered = okOpen && okClose;
 
     std::cout << "[Hotkeys] Registered Global Hotkeys:" << std::endl;
-    std::cout << "  - CTRL + SHIFT + F12 : Toggle Overlay" << std::endl;
-    std::cout << "  - CTRL + SHIFT + F11 : Force OFF Overlay" << std::endl;
-    std::cout << "  - CTRL + SHIFT + F10 : Emergency Local Escape" << std::endl;
+    std::cout << "  - ALT + SHIFT + O : Open Remote Overlay" << std::endl;
+    std::cout << "  - ALT + SHIFT + C : Close Remote Overlay" << std::endl;
+    std::cout << "  - CTRL + SHIFT + F10 / ESC : Emergency Local Escape" << std::endl;
 
     return m_registered;
 }
 
 void HotkeyManager::UnregisterHotkeys(HWND hwnd) {
     if (m_registered) {
-        UnregisterHotKey(hwnd, HOTKEY_ID_TOGGLE);
-        UnregisterHotKey(hwnd, HOTKEY_ID_FORCE_OFF);
+        UnregisterHotKey(hwnd, HOTKEY_ID_OPEN);
+        UnregisterHotKey(hwnd, HOTKEY_ID_CLOSE);
         UnregisterHotKey(hwnd, HOTKEY_ID_ESCAPE);
         m_registered = false;
     }
@@ -57,11 +57,11 @@ bool HotkeyManager::HandleHotkeyMessage(WPARAM wParam, LPARAM /*lParam*/) {
     uint64_t t0 = StateManager::GetEpochMilliseconds();
 
     int hotkeyId = static_cast<int>(wParam);
-    if (hotkeyId == HOTKEY_ID_TOGGLE) {
-        if (onHotkeyTriggered) onHotkeyTriggered(HotkeyAction::Toggle, t0);
+    if (hotkeyId == HOTKEY_ID_OPEN) {
+        if (onHotkeyTriggered) onHotkeyTriggered(HotkeyAction::Open, t0);
         return true;
-    } else if (hotkeyId == HOTKEY_ID_FORCE_OFF) {
-        if (onHotkeyTriggered) onHotkeyTriggered(HotkeyAction::ForceOff, t0);
+    } else if (hotkeyId == HOTKEY_ID_CLOSE) {
+        if (onHotkeyTriggered) onHotkeyTriggered(HotkeyAction::Close, t0);
         return true;
     } else if (hotkeyId == HOTKEY_ID_ESCAPE) {
         if (onHotkeyTriggered) onHotkeyTriggered(HotkeyAction::EmergencyEscape, t0);

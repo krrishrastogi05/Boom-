@@ -7,8 +7,9 @@
 namespace PairPulse {
 
 enum class HotkeyAction {
+    Open,
+    Close,
     Toggle,
-    ForceOff,
     EmergencyEscape
 };
 
@@ -25,8 +26,8 @@ public:
 
     std::function<void(HotkeyAction action, uint64_t t0)> onHotkeyTriggered;
 
-    static const int HOTKEY_ID_TOGGLE = 1001;
-    static const int HOTKEY_ID_FORCE_OFF = 1002;
+    static const int HOTKEY_ID_OPEN = 1001;
+    static const int HOTKEY_ID_CLOSE = 1002;
     static const int HOTKEY_ID_ESCAPE = 1003;
 
 private:

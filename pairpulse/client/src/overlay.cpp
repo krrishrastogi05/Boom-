@@ -176,7 +176,7 @@ void OverlayWindow::Render(HDC hdc) {
     RECT subRect = rect;
     subRect.top = titleRect.bottom + 10;
     subRect.bottom = subRect.top + 40;
-    DrawTextW(memDC, L"Cross-Device Desktop Signaling Screen  •  Press [ESC] to Dismiss", -1, &subRect, DT_CENTER | DT_SINGLELINE);
+    DrawTextW(memDC, L"Cross-Device Desktop Signaling Screen  •  Press [ALT+SHIFT+C] or [ESC] to Dismiss", -1, &subRect, DT_CENTER | DT_SINGLELINE);
 
     // Latency & Telemetry Block
     if (m_lastSeq > 0) {
@@ -211,9 +211,11 @@ LRESULT CALLBACK OverlayWindow::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
         }
 
         case WM_KEYDOWN: {
-            // Local Emergency Escape: User pressing ESC immediately closes overlay
-            if (wParam == VK_ESCAPE) {
-                std::cout << "[Overlay] Local emergency escape key (ESC) pressed." << std::endl;
+            // Local Emergency Escape: User pressing ESC or Alt+Shift+C immediately closes overlay
+            bool isAlt = (GetKeyState(VK_MENU) & 0x8000) != 0;
+            bool isShift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
+            if (wParam == VK_ESCAPE || (wParam == 'C' && isAlt && isShift)) {
+                std::cout << "[Overlay] Local emergency escape key pressed." << std::endl;
                 OverlayWindow::Instance().Hide();
                 return 0;
             }

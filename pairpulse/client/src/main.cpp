@@ -112,9 +112,9 @@ static void PrintUsage() {
               << "  --uninstall-autostart         Remove application from Windows autostart and exit\n"
               << "  --help                        Show this help message\n\n"
               << "Default Global Hotkeys (Controller):\n"
-              << "  CTRL + SHIFT + F12            Toggle Remote Overlay\n"
-              << "  CTRL + SHIFT + F11            Force Remote Overlay OFF\n"
-              << "  CTRL + SHIFT + F10            Local Emergency Escape (Overlay dismiss)\n"
+              << "  ALT + SHIFT + O               Open Remote Overlay\n"
+              << "  ALT + SHIFT + C               Close Remote Overlay\n"
+              << "  CTRL + SHIFT + F10 / ESC      Local Emergency Escape (Overlay dismiss)\n"
               << std::endl;
 }
 
@@ -250,8 +250,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmd
 
         g_hotkeyManager->onHotkeyTriggered = [](HotkeyAction action, uint64_t t0) {
             uint64_t seq = ++g_sequenceNumber;
-            std::string signalType = "OVERLAY_TOGGLE";
-            if (action == HotkeyAction::ForceOff) signalType = "OVERLAY_OFF";
+            std::string signalType = "OVERLAY_ON";
+            if (action == HotkeyAction::Close) signalType = "OVERLAY_OFF";
+            else if (action == HotkeyAction::Toggle) signalType = "OVERLAY_TOGGLE";
 
             // T1: Monotonic timestamp right before writing to already-open socket
             uint64_t t1 = StateManager::GetEpochMilliseconds();

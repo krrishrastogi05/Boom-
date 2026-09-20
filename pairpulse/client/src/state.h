@@ -17,10 +17,10 @@ struct Config {
     Role role = Role::Unknown;
     std::string pairId;
     std::string token;
-    uint32_t toggleHotkeyMod = MOD_CONTROL | MOD_SHIFT;
-    uint32_t toggleHotkeyKey = VK_F12;
-    uint32_t offHotkeyMod = MOD_CONTROL | MOD_SHIFT;
-    uint32_t offHotkeyKey = VK_F11;
+    uint32_t openHotkeyMod = MOD_ALT | MOD_SHIFT;
+    uint32_t openHotkeyKey = 'O';
+    uint32_t closeHotkeyMod = MOD_ALT | MOD_SHIFT;
+    uint32_t closeHotkeyKey = 'C';
     bool debugLogging = true;
 };
 
